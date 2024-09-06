@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload and View Videos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .video-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .video-list {
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .upload-form {
+            width: 100%;
+        }
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <button class="btn btn-danger logout-button" id="logoutButton">Logout</button>
+    <h1 class="mt-5">Upload and View Videos</h1>
+
+    <!-- Display messages -->
+    <div th:if="${message}" class="alert alert-info" role="alert" th:text="${message}"></div>
+
+    <div class="video-container">
+        <!-- Upload Form -->
+        <div class="upload-form mb-4">
+            <h3>Upload Video</h3>
+            <form action="/api/v1/videos/save" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Select Video File:</label>
+                    <input type="file" id="file" name="file" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="desc">Description:</label>
+                    <textarea id="desc" name="desc" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Video List -->
+        <div class="video-list">
+            <h3>Video List</h3>
+            <ul class="list-group">
+                <li class="list-group-item" th:each="video : ${videos}">
+                    <a th:href="@{/viewVideo(fileId=${video.id})}" th:text="${video.name}"></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('logoutButton').addEventListener('click', function() {
+        fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming token is stored in localStorage
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+				console.log("AMit")
+                window.location.href = '/api/auth/login';
+            } else {
+                alert('Logout failed. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during logout.');
+        });
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+

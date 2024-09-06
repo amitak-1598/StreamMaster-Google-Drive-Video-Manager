@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm" action="/api/auth/login" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+
+    <!-- Link to signup page -->
+    <p>Don't have an account? <a href="/api/auth/signup">Signup here</a></p>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text(); // Assuming the token is returned as plain text
+                } else {
+                    return response.text(); // Return error message
+                }
+            })
+            .then(data => {
+                if (data.startsWith('Invalid credentials')) {
+                    // Handle error message
+                    alert(data);
+                } else {
+                    // Token received successfully
+                    const token = data;
+                    localStorage.setItem('authToken', token);
+                    const role = getRoleFromToken(token); // Implement this function to decode the token and get the role
+                    if (role === 'admin') {
+                        window.location.href = '/uploadAndView';
+                    } else {
+                        window.location.href = '/listVideos';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Function to extract role from token
+        function getRoleFromToken(token) {
+            // Decode the token (this is a simplified version, consider using a library for decoding JWT)
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.role; // Adjust based on your token structure
+        }
+    </script>
+</body>
+</html>

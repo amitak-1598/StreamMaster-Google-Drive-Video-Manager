@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>List of Videos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2 class="mt-5">List of Videos</h2>
+    <div th:if="${error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item" th:each="video : ${videos}">
+            <a th:href="@{/viewVideo(fileId=${video.id})}" th:text="${video.name}"></a>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

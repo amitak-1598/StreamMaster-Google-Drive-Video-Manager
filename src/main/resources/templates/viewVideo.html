@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>View Video</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+    <script>
+        // Update the video src when selecting a new video
+        function updateVideo(fileId) {
+            document.getElementById('videoFrame').src = 'https://drive.google.com/file/d/' + fileId + '/preview';
+        }
+
+        // Logout function to send the request with the Authorization header
+        function logout() {
+            const token = localStorage.getItem('authToken'); // Assuming the token is stored in localStorage
+            if (token) {
+                fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Clear the token from localStorage
+                        localStorage.removeItem('authToken');
+                        // Redirect to login page
+                        window.location.href = '/api/auth/login';
+                    } else {
+                        alert('Failed to logout.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                alert('No token found');
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header with Logout Button -->
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+            <h1>View Video</h1>
+            <!-- Logout button with consistent styling -->
+            <button class="btn btn-danger logout-button" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="row">
+            <!-- Video Player Section -->
+            <div class="col-md-9">
+                <div th:if="${fileId}">
+                    <iframe id="videoFrame" th:src="'https://drive.google.com/file/d/' + ${fileId} + '/preview'"
+                        width="80%" height="480" allow="autoplay"></iframe>
+                </div>
+                <div th:unless="${fileId}" class="alert alert-danger mt-3">
+                    <p>No video file available to display.</p>
+                </div>
+            </div>
+
+            <!-- Video List Section -->
+            <div class="col-md-3">
+                <h3>Video List</h3>
+                <ul class="list-group">
+                    <li class="list-group-item" th:each="video : ${videos}">
+                        <a href="javascript:void(0);" onclick="updateVideo(this.dataset.id)"
+                            th:attr="data-id=${video.id}" th:text="${video.name}"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
